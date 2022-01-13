@@ -2,42 +2,21 @@
 const mongodb = require('../../mongodb/index.js');
 const axios = require('axios');
 const { param } = require('express/lib/request');
-const bodyParser = require('body-parser').json();
-
-
-// const bodyParser = require('body-parser');
 
 module.exports = function(app){
 
     // 更新自定义迭代信息
-    app.post('/iteration/custom/update',bodyParser, async function(request, response){
+    app.post('/iteration/custom/update', async function(request, response){
 		// TODO 在这里连接数据库，开发业务逻辑等
-
-        let result = {
-            status:200,
-            info:""
-        };
-    
-        if(!request.body.name){
-            result.status = 400;
-            result.info = '自定义不能为空'
-            return response.status(400).send(result);
-        }
-        if(!request.body.password){
-            result.status = 400;
-            result.info = '描述不能为空'
-            return response.status(400).send(result);
-        }
-
-
         let params = {
             name:request.body.name,
-            password:request.body.password
+            password:request.body.password,
         }
         const { db, connect } = await mongodb('user'); // login-集合-表的名字
-        const searchInfo = await db.findOne({name:params.name});
+        var ObjectID = require('mongodb').ObjectId;
+        const searchInfo = await db.findOne({_id:new ObjectID(request.body._id)})
         if(searchInfo){
-            await db.updateOne({name:params.name},{$set: params}, {multi: true})
+            await db.updateOne({_id:new ObjectID(request.body._id)},{$set: params}, {multi: true})
         } else {
             await db.insertOne(params)
         }
@@ -52,6 +31,7 @@ module.exports = function(app){
                 password:request.body.password,
             }
         }
+        console.log()
         response.send(data)
 	});
 
