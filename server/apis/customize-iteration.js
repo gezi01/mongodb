@@ -1,7 +1,8 @@
 
 const mongodb = require('../../mongodb/index.js');
 const axios = require('axios');
-const { param } = require('express/lib/request');
+
+const guid = require('../../untils/uuid.js');
 
 module.exports = function(app){
 
@@ -12,14 +13,18 @@ module.exports = function(app){
             name:request.body.name,
             password:request.body.password,
         }
+        
         const { db, connect } = await mongodb('user'); // login-集合-表的名字
         var ObjectID = require('mongodb').ObjectId;
+
         const searchInfo = await db.findOne({_id:new ObjectID(request.body._id)})
         if(searchInfo){
             await db.updateOne({_id:new ObjectID(request.body._id)},{$set: params}, {multi: true})
+
         } else {
             await db.insertOne(params)
         }
+
         connect.close();
 
         response.status(200)
