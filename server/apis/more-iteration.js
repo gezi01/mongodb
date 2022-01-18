@@ -69,45 +69,11 @@ module.exports = function(app){
             uuid:request.body.uuid
         }
         const { db, connect } = await mongodb('student'); // user-集合-表的名字
-
-        const searchInfo = await db.findOne({_id:new ObjectID(request.body.id)})
-
         var ObjectID = require('mongodb').ObjectId;
-
+        const searchInfo = await db.findOne({_id:new ObjectID(request.body.id)})
 
        if(searchInfo){
         await db.updateOne({_id:new ObjectID(request.body.id)},{$pull: {"test": { "uuid" : params.uuid}}})
-       }
-
-        connect.close();
-        let data = {
-            status:200,
-            info:'删除成功',
-        }
-        response.send(data)
-	});
-    app.post('/iteration/batch/del', async function(request, response){
-		// TODO 在这里连接数据库，开发业务逻辑等
-        if(!request.body.id){
-            return response.status(400).send('id不能为空');
-        }
-        let params = {
-            id:request.body.id,
-            uuidList:request.body.uuidList
-        }
-        const { db, connect } = await mongodb('student'); // user-集合-表的名字
-        var ObjectID = require('mongodb').ObjectId;
-
-        const searchInfo = await db.findOne({_id:new ObjectID(request.body.id)})
-
-        console.log(params.uuidList)
-
-        // await db.updateMany(searchInfo,{$pop:{'test.$[element]':params}},{ arrayFilters: [ { "element.uuid": params.uuid } ] })
-
-       if(searchInfo){
-        // await db.deleteOne({'test.uuid':params.uuid})
-            // await db.updateOne({_id:new ObjectID(request.body.id)},{$pullAll: {'test': params.uuidList}})
-            await db.updateMany( { _id:new ObjectID(request.body.id) }, { $pullAll: { 'test': [params.uuidList]} })
        }
 
         connect.close();
